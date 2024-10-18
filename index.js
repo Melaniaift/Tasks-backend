@@ -39,28 +39,34 @@ const Task = mongoose.model('Task', taskSchema)
 
 // getting all tasks
 app.get('/api/tasks', async (req, res) => {
-    const tasks = await Task.find();
-    res.send(tasks);
+    try {
+        const tasks = await Task.find();
+        res.send(tasks);
+    } catch (ex) {
+        res.status(500).send('An error occurred while getting the tasks.');
+    }
 })
 
 // getting a task
 app.get('/api/tasks/:id', async (req, res) => {
-    const task = await Task.find({ _id: req.params.id });
+    try {
+        const task = await Task.find({ _id: req.params.id });
 
-    if (!task) {
-        return res.status(404).send('The task with the given ID was not found')
+        if (!task) return res.status(404).send('The task with the given ID was not found')
+
+        res.send(task)
+    } catch (ex) {
+        for (field in ex.errors)
+            console.log(ex.errors[field].message)
+        res.status(500).send('An error occurred while getting the task.');
     }
-    res.send(task)
 })
 
 // create a task
 app.post('/api/tasks', async (req, res) => {
 
     const { error } = validateTask(req.body);
-
-    if (error) {
-        return res.status(400).send(error.details[0].message)
-    }
+    if (error) return res.status(400).send(error.details[0].message)
 
     const task = new Task({
         name: req.body.name,
@@ -69,32 +75,39 @@ app.post('/api/tasks', async (req, res) => {
 
     // save the data in the db
     try {
-        const result = await task.save();
-        console.log(result)
+        await task.save();
+        res.send(task);
     }
     catch (ex) {
         for (field in ex.errors)
             console.log(ex.errors[field].message)
+        res.status(500).send('An error occurred while creating the task.');
     }
-
-    res.send(task);
 })
 
 // update a task name and description
 app.put('/api/tasks/:id', async (req, res) => {
+
     const { error } = validateTask(req.body);
+    if (error) return res.status(400).send(error.details[0].message)
 
-    if (error) {
-        return res.status(400).send(error.details[0].message)
+    try {
+        const task = await Task.findOneAndUpdate({ _id: req.params.id }, {
+            $set: {
+                name: req.body.name,
+                description: req.body.description
+            }
+        }, { new: true });
+
+        if (!task) return res.status(404).send('Task not found. It may have been deleted.');
+
+        res.send(task);
     }
-
-    const task = await Task.findOneAndUpdate({ _id: req.params.id }, {
-        $set: {
-            name: req.body.name,
-            description: req.body.description
-        }
-    }, { new: true });
-    res.send(task);
+    catch (ex) {
+        for (field in ex.errors)
+            console.log(ex.errors[field].message)
+        res.status(500).send('An error occurred while updating the task.');
+    }
 });
 
 // update a task status
@@ -105,20 +118,42 @@ app.put('/api/tasks/:id/status', async (req, res) => {
         return res.status(400).send(error.details[0].message)
     }
 
-    const task = await Task.findOneAndUpdate({ _id: req.params.id }, {
-        $set: {
-            status: req.body.status
-        }
-    }, { new: true });
-    res.send(task);
+    try {
+        const task = await Task.findOneAndUpdate({ _id: req.params.id }, {
+            $set: {
+                status: req.body.status
+            }
+        }, { new: true });
+
+        if (!task) return res.status(404).send('Task not found. It may have been deleted.');
+
+        res.send(task);
+    }
+    catch (ex) {
+        for (field in ex.errors)
+            console.log(ex.errors[field].message)
+        res.status(500).send('An error occurred while updating status of the task.');
+    }
 });
 
 // delete task
 // return null if the id is not found
 app.delete('/api/tasks/:id', async (req, res) => {
-    const task = await Task.findByIdAndDelete(req.params.id);
-    res.send(task);
-})
+    if (!req.params.id) {
+        return res.status(400).send('Task ID is required.');
+    }
+
+    try {
+        const task = await Task.findByIdAndDelete(req.params.id);
+
+        if (!task) return res.status(404).send('Task not found. It may have already been deleted.');
+
+        res.send(`Successfully deleted ${task.name}.`);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('An error occurred while deleting the task.');
+    }
+});
 
 // validating task name and status
 function validateTask(task) {

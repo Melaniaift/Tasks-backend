@@ -48,3 +48,6 @@ nodemon index.js
   Install with: `npm install joi`  
   A schema description and data validation library for JavaScript.
 
+## Postman testing 
+
+Created the file Tasks.postman_collection.json to test the API.
