@@ -1,6 +1,7 @@
 # Tasks Management Dashboard
 
 A simple tasks management dashboard backend built with Node.js and MongoDB.
+Deployed [here](https://tasks-backend-vqth.onrender.com/api)
 
 ## Getting Started
 
