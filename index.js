@@ -15,12 +15,11 @@ app.use(cors({ origin: 'http://localhost:3001' }));
 app.use(express.json());
 
 const dotenv = require('dotenv');
-const result = dotenv.config();
 
 const allowedStatuses = ['new', 'progress', 'testing', 'done'];
 
 // connection to the db
-mongoose.connect(result.parsed.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('Connected to MongoDB...'))
     .catch((err) => console.error('Could not connect to MongoDB', err))
 
