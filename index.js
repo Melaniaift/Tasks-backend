@@ -1,6 +1,6 @@
 // data validation language
 const Joi = require('joi');
-
+const cors = require('cors');
 //library for mongodb management
 const mongoose = require('mongoose');
 
@@ -8,13 +8,19 @@ const mongoose = require('mongoose');
 const express = require('express');
 const app = express();
 
+// allowed domains for making the requests
+app.use(cors({ origin: 'http://localhost:3001' }));
+
 // Middleware to parse JSON request bodies
 app.use(express.json());
+
+const dotenv = require('dotenv');
+const result = dotenv.config();
 
 const allowedStatuses = ['new', 'progress', 'testing', 'done'];
 
 // connection to the db
-mongoose.connect('mongodb://localhost/tasks')
+mongoose.connect(result.parsed.MONGO_URI)
     .then(() => console.log('Connected to MongoDB...'))
     .catch((err) => console.error('Could not connect to MongoDB', err))
 
