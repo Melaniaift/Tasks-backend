@@ -9,7 +9,7 @@ const express = require('express');
 const app = express();
 
 // allowed domains for making the requests
-app.use(cors({ origin: 'http://localhost:3001' }));
+app.use(cors({ origin: 'https://tasks-checking.netlify.app' }));
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
