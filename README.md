@@ -51,4 +51,31 @@ nodemon index.js
 
 ## Postman testing 
 
-Created the file Tasks.postman_collection.json to test the API.
+Created the file Tasks.postman_collection.json to test the API locally.
+
+## Task Management API Endpoints
+
+### `GET /api/tasks`
+- **Description:** Retrieves all tasks.
+- **Error:** 500 if fetching fails.
+
+### `GET /api/tasks/:id`
+- **Description:** Retrieves a task by ID.
+- **Error:** 404 if not found, 500 for server errors.
+
+### `POST /api/tasks`
+- **Description:** Creates a new task with `name` and `description`.
+- **Error:** 400 if validation fails, 500 for server errors.
+
+### `PUT /api/tasks/:id`
+- **Description:** Updates a task's `name` and `description`.
+- **Error:** 400 if validation fails, 404 if not found, 500 for server errors.
+
+### `PUT /api/tasks/:id/status`
+- **Description:** Updates a task's status.
+- **Error:** 400 if validation fails, 404 if not found, 500 for server errors.
+
+### `DELETE /api/tasks/:id`
+- **Description:** Deletes a task by ID.
+- **Error:** 400 if ID is missing, 404 if not found, 500 for server errors.
+
